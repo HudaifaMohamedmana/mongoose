@@ -1,6 +1,7 @@
 require("dotenv").config();
 const express = require("express")
 const routes = require("./routes/routes.js");
+
 const PORT = process.env.PORT || 3000;
 
 const app = express()
@@ -8,100 +9,85 @@ const app = express()
 // ------------------------- Database_Connection
 
 const connectToDb = require("./db/conn");
+const Student = require("./models/students.js");
 connectToDb();
 
+app.use(express.json());
 //-----------------------------
 app.use((req, res, next) => {
   console.log(`A request happened: ${req.method} ${req.url}`);
   next();
 });
 //-----------------------------------------------------------------------------------------------------------------------------------------------------
-app.get("/", (req, res) => {
-  res.json({ hello: "world" });
-});
-
-app.get("/Students", async (req, res) => {
-  // Get all Students from database.
-  let db = await connectToDb()
-  let collection = await db.collection("grades")
-  const Students = await collection.find().limit(50).toArray();
-  // Send them as a response
-  res.send(Students).status(200);
-});
-app.get("/notes", async (req, res) => {
-  // Get all notes from database.
-  const notes = await Note.find();
-  // Send them as a response
-  res.json({ notes: notes });
-});
 // // +++++++++++++ {READ} ++++++++++++++
+app.get("/", async (req, res) => {
+  res.send(" hello: world" );
+});
 
-// app.get("/Students/:id", async (req, res) => {
-//   // 1. Get id off the url
-//   // 2. Find the Students using that id
-//   // 3. Send response with that Students as the payload
-//   const StudentsId = req.params.id;
-//   // ------------------------------(1)
-//   const Students = await Students.findById(StudentsId);
-//   // ------------------------------(2)
-//   res.json({ Students: Students });
-//   // ------------------------------(3)
-// });
+app.get("/Student", async (req, res) => {
+  const students = await Student.find()
+  res.json({students})
+});
+
+app.get("/student/:id", async (req, res) => {
+  const studentId = req.params.id
+  const student = await Student.findById(studentId)
+  res.json({student})
+
+});
+
 // // +++++++++++++ {CREATE} ++++++++++++++
 
-// app.post("/Students", async (req, res) => {
-//   // 1. Get data from req.body
-//   // 2.Create Students by passing data above into model Schema
-//   // 3. Respond with copy of new Students
-//   const title = req.body.title;
-//   const body = req.body.body;
-//   // ------------------------------(1)
-//   const Students = await Students.create({
-//     title: title,
-//     body: body,
-//   });
-//   // ------------------------------(2)
-//   res.json({ Students: Students });
-//   // ------------------------------(3)
-// });
+app.post("/Student", async (req, res) => {
+  // 1. Get data from req.body
+  // 2.Create Students by passing data above into model Schema
+  // 3. Respond with copy of new Students
+  const name = req.body.name;
+  const grade = req.body.grade;
+  // // ------------------------------(1)
+  const student = await Student.create({
+    name: name,
+    grade: grade,
+  });
+  // // ------------------------------(2)
+  res.json({student});
+  // ------------------------------(3)
+});
 
 // // +++++++++++++ {UPDATE} ++++++++++++++
 
-// app.put("/Students/:id", async (req, res) => {
-//   // 1.Get the id off the url
-//   // 2. Get the Data off the Body
-//   // 3. Find and update Students
-//   // 4. Retrieve updatedStudents and send it as a response
+app.put("/Student/:id", async (req, res) => {
+  // 1.Get the id off the url
+  // 2. Get the Data off the Body
+  // 3. Find and update Students
+  // 4. Retrieve updatedStudents and send it as a response
+   // ------------------------------(1)
+const studentId = req.params.id
+  const {name,grade} = req.body;
+  // const stu = await Student.findByIdAndUpdate(studentId,{name:name,grade:grade})
 
-//   const StudentsId = req.params.id;
-//   // ------------------------------(1)
-//   const title = req.body.title;
-//   const body = req.body.body;
-//   // ------------------------------(2)
-//   const Students = await Students.findByIdAndUpdate(StudentsId, {
-//     title: title,
-//     body: body,
-//   });
-//   // ------------------------------(3)
-//   const updatedStudents = await Students.findById(StudentsId);
-//   res.json({ Students: updatedStudents });
-//   // ------------------------------(4)
-// });
+  // ------------------------------(2)
+  const student = await Student.findByIdAndUpdate(studentId, {name: name,grade: grade});
+  // // ------------------------------(3)
+  const updatedStudents = await Student.findById(studentId);
+  res.json({updatedStudents});
+  // ------------------------------(4)
+});
 // // +++++++++++++ {DELETE} ++++++++++++++
 
-// app.delete("/Students/:id", async (req, res) => {
-//   // 1. Get id off url
-//   // 2. Delete the record
-//   // 3. Send a Response to confirm deletion
-//   const StudentsId = req.params.id;
-//   // ------------------------------(1)
-//   await Students.deleteOne({
-//     id: StudentsId,
-//   });
-//   // ------------------------------(2)
-//   res.json({ success: "Record Deleted Successfully" });
-//   // ------------------------------(3)
-// });
+app.delete("/Student/:id", async (req, res) => {
+  // 1. Get id off url
+  // 2. Delete the record
+  // 3. Send a Response to confirm deletion
+  const StudentId = req.params.id;
+  // ------------------------------(1)
+  await Student.deleteOne({
+    id: StudentId,
+  });
+  // ------------------------------(2)
+res.json({success:"Record Deleted Successfully"} );
+  // ------------------------------(3)
+});
 
 
 

@@ -4,7 +4,8 @@ const mongoose = require('mongoose');
 
 const dbconnect = async() => {
     await mongoose.connect(process.env.ATLAS_URI);
-    console.log(`sample_training`)
+    // sample_training
+    console.log(`connected to mongoose`)
 }
 
 module.exports = dbconnect;
